@@ -7,16 +7,20 @@
 //
 
 import UIKit
+import AVFoundation
+
 
 class ViewController: UIViewController {
 
     private var nameButtons = ["A", "C", "B", "F", "G", "E", "D"]
     private var buttonStackView = UIStackView()
+    private var player: AVAudioPlayer?
     override func viewDidLoad() {
         super.viewDidLoad()
         setViews()
         setConstraints()
         createButtons()
+        
     }
     
     private func createButtons() {
@@ -38,11 +42,40 @@ class ViewController: UIViewController {
         button.layer.cornerRadius = 10
         button.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: width).isActive = true
         button.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        button.backgroundColor = .red
+        button.backgroundColor = getColor(for: name)
+    }
+    
+    private func getColor(for name: String) -> UIColor {
+        switch name {
+        case "A": return .systemRed
+        case "C": return .systemOrange
+        case "B": return .systemYellow
+        case "F": return .systemGreen
+        case "G": return .systemIndigo
+        case "E": return .systemBlue
+        case "D": return .systemPurple
+        default: return .white
+        }
+    }
+    
+    func togleButtonAlpha(_ button: UIButton) {
+        button.alpha = button.alpha == 1 ? 0.5 : 1
+    }
+    
+    func playSound(_ buttonText: String) {
+        guard let url = Bundle.main.url(forResource: buttonText, withExtension: "wav") else { return }
+        player = try! AVAudioPlayer(contentsOf: url)
+        player?.play()
     }
 
     @objc private func buttonsTupped(_ sender: UIButton) {
-        print(sender.currentTitle)
+        togleButtonAlpha(sender)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.togleButtonAlpha(sender)
+        }
+        guard let buttonText = sender.currentTitle else { return }
+        playSound(buttonText)
+        
     }
     
 
